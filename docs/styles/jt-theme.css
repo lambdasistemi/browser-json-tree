@@ -1,0 +1,43 @@
+/* Tie the library's --jt-* custom properties to the Material
+   for MkDocs design tokens. Picks up the user's light/dark
+   palette automatically — the slate scheme remaps Material's
+   --md-* variables and our override rides along. */
+
+.json-tree-wrapper {
+  --jt-bg:            var(--md-code-bg-color);
+  --jt-fg:            var(--md-typeset-color);
+  --jt-key:           var(--md-default-fg-color--light);
+  --jt-line:          var(--md-default-fg-color--lightest);
+  --jt-marker:        var(--md-default-fg-color--light);
+  --jt-link:          var(--md-primary-fg-color);
+  --jt-link-hover:    var(--md-accent-fg-color);
+  --jt-str:           var(--md-typeset-color);
+  --jt-bool-num:      var(--md-primary-fg-color);
+  --jt-copy-fg:       var(--md-default-fg-color--light);
+  --jt-copy-border:   var(--md-default-fg-color--lightest);
+  --jt-copy-hover-fg: var(--md-typeset-color);
+  --jt-copy-hover-bg: var(--md-default-bg-color);
+  --jt-copy-ok-fg:    var(--md-primary-bg-color);
+  --jt-copy-ok-bg:    var(--md-primary-fg-color);
+}
+
+/* Picker chip chrome rides the same toggle. The fallback
+   colours in demo.css remain useful for the standalone
+   `examples/dist/index.html` smoke. */
+.jt-demo__pick {
+  border-color: var(--md-default-fg-color--lightest);
+  color: var(--md-typeset-color);
+}
+.jt-demo__pick:hover {
+  background: var(--md-code-bg-color);
+  border-color: var(--md-default-fg-color--light);
+}
+.jt-demo__pick--active,
+.jt-demo__pick--active:hover {
+  background: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+}
+.jt-demo__subtitle {
+  color: var(--md-default-fg-color--light);
+}

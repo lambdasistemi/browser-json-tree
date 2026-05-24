@@ -1,0 +1,70 @@
+site_name: browser-json-tree
+site_description: >-
+  Typed Halogen renderer + click behaviour for collapsible JSON trees.
+  Self-contained CSS, four-shape Cardano string-leaf resolver, structure-level
+  copy chip.
+site_url: https://lambdasistemi.github.io/browser-json-tree/
+repo_url: https://github.com/lambdasistemi/browser-json-tree
+repo_name: lambdasistemi/browser-json-tree
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.indexes
+    - navigation.sections
+    - navigation.path
+    - content.code.copy
+    - content.action.edit
+    - content.action.view
+
+extra_css:
+  - styles/jt-theme.css      # source-tracked: Material tie-in
+  - assets/json-tree.css     # build-injected: canonical library CSS
+  - assets/demo.css          # build-injected: picker chrome
+
+extra_javascript:
+  - assets/demo.js           # build-injected: bundled Halogen demo
+
+nav:
+  - Home: index.md
+  - Live demo: demo.md
+  - Installation: installation.md
+  - Usage: usage.md
+  - Theming: theming.md
+  - API: api.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - tables
+  - footnotes
+  - def_list
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - attr_list
+  - md_in_html
