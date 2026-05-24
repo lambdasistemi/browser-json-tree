@@ -5,9 +5,13 @@
         "path": "./",
         "core": {
           "dependencies": [
+            "aff",
+            "argonaut-codecs",
             "argonaut-core",
             "arrays",
             "effect",
+            "either",
+            "exceptions",
             "foreign-object",
             "halogen",
             "integers",
@@ -15,7 +19,8 @@
             "numbers",
             "prelude",
             "strings",
-            "tuples"
+            "tuples",
+            "web-html"
           ]
         },
         "test": {
@@ -636,6 +641,29 @@
         "tailrec",
         "transformers",
         "unsafe-coerce"
+      ]
+    },
+    "argonaut-codecs": {
+      "type": "registry",
+      "version": "9.1.0",
+      "integrity": "sha256-K910SBrmYallESsm8pxJYThs7lig6hxX3M4PW33Cgew=",
+      "dependencies": [
+        "argonaut-core",
+        "arrays",
+        "bifunctors",
+        "either",
+        "foldable-traversable",
+        "foreign-object",
+        "identity",
+        "integers",
+        "lists",
+        "maybe",
+        "nonempty",
+        "ordered-collections",
+        "prelude",
+        "record",
+        "strings",
+        "tuples"
       ]
     },
     "argonaut-core": {
@@ -1307,6 +1335,16 @@
         "newtype",
         "prelude",
         "tuples"
+      ]
+    },
+    "record": {
+      "type": "registry",
+      "version": "4.0.0",
+      "integrity": "sha256-WQ8fqp4X1wTA70J4qUcPW4Z7DCwx6e5KJnT/EuTdWSc=",
+      "dependencies": [
+        "functions",
+        "prelude",
+        "unsafe-coerce"
       ]
     },
     "refs": {

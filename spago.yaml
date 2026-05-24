@@ -10,15 +10,29 @@ package:
   dependencies:
     - prelude
     - effect
+    - aff
     - halogen
     - argonaut-core
+    - argonaut-codecs
     - arrays
+    - either
+    - exceptions
     - foreign-object
     - integers
     - numbers
     - strings
     - tuples
     - maybe
+    - web-html
+  bundle:
+    # JS-facing bundle. Produced by `spago bundle` and shipped
+    # as `browser-json-tree.js` on the GitHub Release so vanilla
+    # JS apps can `import { mount, install } from "./browser-json-tree.js"`
+    # without writing Halogen.
+    module: JsonTree.JS
+    outfile: dist/browser-json-tree.js
+    platform: browser
+    type: module
 
 workspace:
   packageSet:
