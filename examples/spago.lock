@@ -8,12 +8,14 @@
             "aff",
             "argonaut-codecs",
             "argonaut-core",
+            "arrays",
             "browser-json-tree",
             "effect",
             "either",
             "halogen",
             "maybe",
-            "prelude"
+            "prelude",
+            "web-dom"
           ]
         },
         "test": {

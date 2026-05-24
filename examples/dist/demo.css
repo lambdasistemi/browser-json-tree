@@ -1,0 +1,54 @@
+/* Shared chrome for the multi-sample picker. Lives in
+   examples/dist so both the standalone smoke (index.html)
+   and the docs site (which embeds the bundle) pick it up.
+
+   Themed off the same --jt-* custom properties that
+   json-tree.css exposes so consumers can override both
+   library and demo chrome in one place. */
+
+.jt-demo {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  color: var(--jt-fg, #1f2328);
+}
+
+.jt-demo__picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.jt-demo__pick {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid var(--jt-line, #d0d7de);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--jt-fg, #1f2328);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.jt-demo__pick:hover {
+  background: var(--jt-copy-hover-bg, #eaeef2);
+  border-color: var(--jt-marker, #6e7781);
+}
+
+.jt-demo__pick--active,
+.jt-demo__pick--active:hover {
+  background: var(--jt-link, #0969da);
+  border-color: var(--jt-link, #0969da);
+  color: #ffffff;
+}
+
+.jt-demo__subtitle {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--jt-marker, #6e7781);
+}
+
+.jt-demo__chrome {
+  display: block;
+}
