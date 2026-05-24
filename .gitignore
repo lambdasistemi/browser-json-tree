@@ -6,8 +6,16 @@ result
 result-*
 .direnv/
 
-# Bundled example app
+# Bundled artefacts (built by nix / spago bundle)
 examples/dist/index.js
+dist/browser-json-tree.js
+
+# Docs site asset directory — populated by `nix build .#docsSite`
+# (or `just docs` in the dev shell) from `dist/` + `examples/dist/`.
+# Source-of-truth stylesheets live in `docs/styles/`.
+docs/assets/
+site/
+_site/
 
 # LLM scratch
 .llm/

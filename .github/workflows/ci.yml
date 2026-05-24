@@ -29,7 +29,9 @@ jobs:
         run: >-
           nix build --quiet
           .#checks.x86_64-linux.library
+          .#checks.x86_64-linux.jsBundle
           .#checks.x86_64-linux.example
+          .#checks.x86_64-linux.docsSite
           .#checks.x86_64-linux.lint
       - name: Release version contract
         working-directory: checkout
@@ -51,6 +53,22 @@ jobs:
         working-directory: checkout
         run: nix build --quiet .#checks.x86_64-linux.library
 
+  js-bundle:
+    needs: build-gate
+    runs-on: nixos
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+          path: checkout
+      - uses: cachix/cachix-action@v17
+        with:
+          name: paolino
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: JS bundle (browser-json-tree.js)
+        working-directory: checkout
+        run: nix build --quiet .#checks.x86_64-linux.jsBundle
+
   example:
     needs: build-gate
     runs-on: nixos
@@ -66,6 +84,43 @@ jobs:
       - name: Example bundle (end-to-end smoke)
         working-directory: checkout
         run: nix build --quiet .#checks.x86_64-linux.example
+
+  docs:
+    needs: build-gate
+    runs-on: nixos
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+          path: checkout
+      - uses: cachix/cachix-action@v17
+        with:
+          name: paolino
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Docs site (mkdocs --strict)
+        working-directory: checkout
+        run: nix build --quiet .#checks.x86_64-linux.docsSite
+      - name: Smoke test static site on localhost
+        working-directory: checkout
+        run: |
+          set -euo pipefail
+          rm -rf preview-site
+          mkdir -p preview-site
+          cp -R -L result/* preview-site/
+          chmod -R u+w preview-site
+          nix --quiet shell nixpkgs#python3 nixpkgs#curl -c bash -euo pipefail <<'SCRIPT'
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory preview-site &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:4173/ >/dev/null
+          curl -fsS http://127.0.0.1:4173/demo/ >/dev/null
+          curl -fsS http://127.0.0.1:4173/assets/browser-json-tree.js >/dev/null
+          curl -fsS http://127.0.0.1:4173/assets/json-tree.css >/dev/null
+          SCRIPT
 
   lint:
     needs: build-gate
