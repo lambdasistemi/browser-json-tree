@@ -1,0 +1,111 @@
+name: Release
+
+on:
+  push:
+    tags: [ "v*" ]
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/release.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "nix/**"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag, for example v0.1.0"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build + publish release
+    runs-on: nixos
+    env:
+      MODE: ${{ github.event_name == 'pull_request' && 'dry-run' || 'release' }}
+      TAG: ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag || github.ref }}
+          path: checkout
+
+      - uses: cachix/cachix-action@v17
+        with:
+          name: paolino
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Validate release contract
+        working-directory: checkout
+        run: |
+          set -euo pipefail
+          if [[ "$MODE" == "release" ]]; then
+            if [[ -z "${TAG:-}" ]]; then
+              echo "release mode requires a v* tag from a tag push or the tag input" >&2
+              exit 1
+            fi
+            scripts/release/check-version-consistency "$TAG"
+          fi
+
+      - name: Build library + example bundle
+        working-directory: checkout
+        id: build
+        run: |
+          set -euo pipefail
+          nix build --quiet \
+            .#checks.x86_64-linux.library \
+            .#checks.x86_64-linux.example
+          version="$(scripts/release/get-spago-version)"
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+
+      - name: Assemble release tarball
+        working-directory: checkout
+        id: tarball
+        run: |
+          set -euo pipefail
+          version="${{ steps.build.outputs.version }}"
+          archive="browser-json-tree-$version"
+          mkdir -p artifacts
+          # Source tarball: what spago publish / git tag consumers
+          # actually need. Mirrors `git archive` but adds the
+          # canonical CSS already in place.
+          git archive --format=tar.gz \
+            --prefix="$archive/" \
+            -o "artifacts/$archive.tar.gz" HEAD
+          # Convenience copy of the stylesheet so downstream
+          # users can drop it in without unpacking the source.
+          cp dist/json-tree.css "artifacts/json-tree-$version.css"
+          ls -lh artifacts/
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-artifacts-${{ steps.build.outputs.version }}
+          path: checkout/artifacts/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: env.MODE == 'release'
+        working-directory: checkout
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          notes="$(mktemp)"
+          scripts/release/extract-notes "$TAG" > "$notes"
+          gh=(nix --quiet shell nixpkgs#gh -c gh)
+          "${gh[@]}" release view "$TAG" >/dev/null 2>&1 \
+            || "${gh[@]}" release create "$TAG" \
+              --title "browser-json-tree $TAG" \
+              --notes-file "$notes" \
+            || "${gh[@]}" release view "$TAG" >/dev/null
+          "${gh[@]}" release upload "$TAG" artifacts/* --clobber
