@@ -60,19 +60,23 @@ rootComponent =
       , HH.p [ HP.class_ (HH.ClassName "jt-demo__subtitle") ]
           [ HH.text st.current.subtitle ]
       , HH.div [ HP.class_ (HH.ClassName "jt-demo__chrome") ]
-          [ HH.button
-              [ HP.classes
-                  [ HH.ClassName "v-copy"
-                  , HH.ClassName "v-copy--block"
+          [ HH.div [ HP.class_ (HH.ClassName "jt-demo__bar") ]
+              [ HH.button
+                  [ HP.classes
+                      [ HH.ClassName "v-copy"
+                      , HH.ClassName "v-copy--block"
+                      ]
+                  , HP.attr (HH.AttrName "data-copy") (stringify st.current.json)
+                  , HP.attr (HH.AttrName "aria-label") "Copy JSON"
+                  , HP.title "Copy the displayed JSON to the clipboard"
+                  , HP.type_ HP.ButtonButton
                   ]
-              , HP.attr (HH.AttrName "data-copy") (stringify st.current.json)
-              , HP.attr (HH.AttrName "aria-label") "Copy JSON"
-              , HP.title "Copy the displayed JSON"
-              , HP.type_ HP.ButtonButton
+                  [ HH.text "⎘ Copy JSON" ]
               ]
-              [ HH.text "⎘ Copy JSON" ]
           , HH.div [ HP.class_ (HH.ClassName "json-tree-wrapper") ]
               [ JsonTree.render st.current.json ]
+          , HH.p [ HP.class_ (HH.ClassName "jt-demo__hint") ]
+              [ HH.text "Single click → toggle one level (closing cascades) · Double click → expand recursively · Links open cardanoscan in a new tab" ]
           ]
       ]
 
@@ -80,8 +84,21 @@ rootComponent =
   sampleButton current _ s =
     HH.button
       [ HP.classes
-          ( [ HH.ClassName "jt-demo__pick" ]
-              <> (if s.id == current.id then [ HH.ClassName "jt-demo__pick--active" ] else [])
+          -- `md-button` makes the chip ride Material for MkDocs'
+          -- own button design tokens inside the docs site; the
+          -- `jt-demo__pick` fallback class keeps the standalone
+          -- `examples/dist/index.html` smoke looking presentable
+          -- when Material isn't on the page.
+          ( [ HH.ClassName "md-button"
+            , HH.ClassName "jt-demo__pick"
+            ]
+              <>
+                ( if s.id == current.id then
+                    [ HH.ClassName "md-button--primary"
+                    , HH.ClassName "jt-demo__pick--active"
+                    ]
+                  else []
+                )
           )
       , HP.type_ HP.ButtonButton
       , HE.onClick (\_ -> Pick s)
