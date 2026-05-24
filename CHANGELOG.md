@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Features
+
+- Ship a MkDocs Material documentation site at
+  https://lambdasistemi.github.io/browser-json-tree/ with a live,
+  interactive demo rendering four real-world JSON samples (a
+  Conway-era Cardano transaction exercising every default resolver
+  branch, the live GitHub API response for this repo, a Kubernetes
+  Pod manifest with a sidecar, and the npm registry entry for
+  `react`). Light/dark Material palette toggle drives both site
+  chrome and the tree colours via a `--jt-*` ⇄ `--md-*` tie-in.
+- Add `JsonTree.JS` — vanilla-JS adapter over the renderer +
+  behaviour shim. Exposes `mount`, `mountFromString`, and `install`;
+  bundled as `dist/browser-json-tree.js` (ES module). Lets a plain
+  JS app render a tree under any DOM element without writing
+  Halogen. Shipped as a standalone GitHub Release asset.
+- Refactor the example app into a four-sample picker, mounting on
+  `#json-tree-demo` if present (docs site) and falling back to
+  `<body>` for the standalone smoke. The bundle is reused by the
+  docs site as the live demo.
+- `nix build .#docsSite` builds the documentation site reproducibly
+  in the sandbox; CI Build Gate now includes it, and a localhost
+  smoke check verifies the rendered HTML + the JS/CSS assets are
+  reachable. `nix build .#jsBundle` builds the JS library bundle.
+- `.github/workflows/deploy-docs.yml` publishes to GitHub Pages on
+  push to `main`.
+
 ## [0.1.0]
 
 ### Features
