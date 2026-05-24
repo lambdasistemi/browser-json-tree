@@ -2,85 +2,88 @@ module Main (main) where
 
 import Prelude
 
-import Data.Argonaut.Core (Json, jsonNull, stringify)
-import Data.Argonaut.Parser (jsonParser)
-import Data.Either (either)
+import Data.Argonaut.Core (stringify)
+import Data.Array (mapWithIndex)
+import Data.Array.NonEmpty as NEA
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Halogen.VDom.Driver (runUI)
 import JsonTree as JsonTree
 import JsonTree.Behaviour as Behaviour
+import Samples (Sample, samples)
+import Web.DOM.ParentNode (QuerySelector(..))
 
+-- | Entry point. Mount to `#json-tree-demo` if the host page
+-- | provides one (the docs site does); otherwise mount to the
+-- | document body so the standalone `examples/dist/index.html`
+-- | bundle keeps working as an end-to-end smoke artefact.
 main :: Effect Unit
 main = HA.runHalogenAff do
-  body <- HA.awaitBody
-  _ <- runUI rootComponent unit body
+  HA.awaitLoad
+  mTarget <- HA.selectElement (QuerySelector "#json-tree-demo")
+  target <- case mTarget of
+    Just el -> pure el
+    Nothing -> HA.awaitBody
+  _ <- runUI rootComponent unit target
   H.liftEffect Behaviour.install
+
+type State = { current :: Sample }
+
+data Action = Pick Sample
 
 rootComponent :: forall q i o. H.Component q i o Aff
 rootComponent =
   H.mkComponent
-    { initialState: const unit
-    , render: const view
-    , eval: H.mkEval H.defaultEval
+    { initialState
+    , render
+    , eval: H.mkEval H.defaultEval { handleAction = handleAction }
     }
   where
-  view =
-    HH.div [ HP.class_ (HH.ClassName "panel") ]
-      [ HH.h1_ [ HH.text "browser-json-tree — example" ]
-      , HH.div [ HP.class_ (HH.ClassName "json-tree-wrapper") ]
-          -- Structure-level "Copy JSON" chip. The library
-          -- ships the CSS (`.v-copy.v-copy--block`) and the
-          -- behaviour (`Behaviour.install` reads `data-copy`
-          -- and writes to navigator.clipboard, then flashes
-          -- `.v-copy--ok`). Consumers render the chip; the
-          -- library wires the rest.
+  initialState :: i -> State
+  initialState _ = { current: NEA.head samples }
+
+  handleAction :: Action -> H.HalogenM State Action () o Aff Unit
+  handleAction = case _ of
+    Pick s -> H.modify_ \st -> st { current = s }
+
+  render :: State -> H.ComponentHTML Action () Aff
+  render st =
+    HH.div [ HP.class_ (HH.ClassName "jt-demo") ]
+      [ HH.div [ HP.class_ (HH.ClassName "jt-demo__picker") ]
+          (mapWithIndex (sampleButton st.current) (NEA.toArray samples))
+      , HH.p [ HP.class_ (HH.ClassName "jt-demo__subtitle") ]
+          [ HH.text st.current.subtitle ]
+      , HH.div [ HP.class_ (HH.ClassName "jt-demo__chrome") ]
           [ HH.button
               [ HP.classes
                   [ HH.ClassName "v-copy"
                   , HH.ClassName "v-copy--block"
                   ]
-              , HP.attr (HH.AttrName "data-copy") (stringify sample)
+              , HP.attr (HH.AttrName "data-copy") (stringify st.current.json)
               , HP.attr (HH.AttrName "aria-label") "Copy JSON"
-              , HP.title "Copy the whole sample as JSON"
+              , HP.title "Copy the displayed JSON"
               , HP.type_ HP.ButtonButton
               ]
               [ HH.text "⎘ Copy JSON" ]
-          , JsonTree.render sample
+          , HH.div [ HP.class_ (HH.ClassName "json-tree-wrapper") ]
+              [ JsonTree.render st.current.json ]
           ]
       ]
 
--- | Sample chosen to exercise every renderer branch: nested
--- | objects, arrays of leaves, arrays of compound items, the
--- | four default Cardano shapes the resolver knows about
--- | (txid, txin `<txid>#<ix>`, policy id, addr1 bech32), an
--- | empty object (hidden by `Config.hideEmpty`), a null, a
--- | bool, a number, a plain string. `jsonNull` is the safe
--- | fallback if the literal ever stops parsing during
--- | refactoring.
-sample :: Json
-sample = either (const jsonNull) identity (jsonParser raw)
-  where
-  raw =
-    """
-    {
-      "tx_hash": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
-      "txin":    "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899#1",
-      "policy":  "11223344556677889900aabbccddeeff00112233445566778899aabbcc",
-      "address": "addr1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jnlu0ymgheqsnxzg",
-      "amount":  1500000,
-      "valid":   true,
-      "missing": null,
-      "label":   "treasury rebalance",
-      "tags":    [ "draft", "reviewed", "shipped" ],
-      "deltas":  [
-        { "kind": "withdraw", "amount": 1000, "memo": "fees" },
-        { "kind": "deposit",  "amount": 2500, "memo": "" }
-      ],
-      "metadata": {}
-    }
-    """
+  sampleButton :: Sample -> Int -> Sample -> H.ComponentHTML Action () Aff
+  sampleButton current _ s =
+    HH.button
+      [ HP.classes
+          ( [ HH.ClassName "jt-demo__pick" ]
+              <> (if s.id == current.id then [ HH.ClassName "jt-demo__pick--active" ] else [])
+          )
+      , HP.type_ HP.ButtonButton
+      , HE.onClick (\_ -> Pick s)
+      ]
+      [ HH.text s.title ]

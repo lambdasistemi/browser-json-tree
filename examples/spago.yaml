@@ -6,9 +6,11 @@ package:
     - aff
     - argonaut-core
     - argonaut-codecs
+    - arrays
     - either
     - halogen
     - maybe
+    - web-dom
     - browser-json-tree
   bundle:
     module: Main
