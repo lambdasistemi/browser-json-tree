@@ -41,9 +41,11 @@
           project = import ./nix/project.nix { inherit pkgs; src = ./.; };
         in
         {
-          default = project.library;
+          default = project.docsSite;
           library = project.library;
+          jsBundle = project.jsBundle;
           example = project.example;
+          docsSite = project.docsSite;
         });
 
       checks = forAllSystems (system:
@@ -54,7 +56,9 @@
         in
         {
           library = project.library;
+          jsBundle = project.jsBundle;
           example = project.example;
+          docsSite = project.docsSite;
           lint = apps.runCheck "lint" apps.lint;
         });
 
@@ -84,6 +88,9 @@
               pkgs.purescript-language-server
               pkgs.esbuild
               pkgs.nodejs_22
+              pkgs.python3
+              pkgs.python3Packages.mkdocs-material
+              pkgs.python3Packages.pymdown-extensions
               pkgs.just
               pkgs.git
               pkgs.gh
