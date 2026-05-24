@@ -1,0 +1,24 @@
+package:
+  name: browser-json-tree-example
+  dependencies:
+    - prelude
+    - effect
+    - aff
+    - argonaut-core
+    - argonaut-codecs
+    - either
+    - halogen
+    - maybe
+    - browser-json-tree
+  bundle:
+    module: Main
+    outfile: dist/index.js
+    platform: browser
+    type: app
+
+workspace:
+  packageSet:
+    registry: 72.1.0
+  extraPackages:
+    browser-json-tree:
+      path: ../

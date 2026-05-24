@@ -1,0 +1,21 @@
+{
+  "name": "browser-json-tree",
+  "version": "0.1.0",
+  "description": "Typed Halogen renderer + click behaviour for collapsible JSON trees",
+  "license": "Apache-2.0",
+  "files": [
+    "src",
+    "dist/json-tree.css",
+    "spago.yaml",
+    "spago.lock",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lambdasistemi/browser-json-tree.git"
+  },
+  "main": "dist/json-tree.css",
+  "dependencies": {}
+}
