@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Print the `publish.version` field from the package's spago.yaml.
+# Source of truth for the library's version — every release
+# artifact (git tag, GitHub Release title, CHANGELOG section)
+# must agree with this value.
+set -euo pipefail
+
+spago_file="${1:-spago.yaml}"
+
+in_publish=0
+publish_indent=""
+
+while IFS= read -r line || [[ -n "$line" ]]; do
+  # `publish:` opens the relevant block. Record its indent so
+  # we know when a sibling key starts.
+  if [[ "$line" =~ ^([[:space:]]*)publish:[[:space:]]*$ ]]; then
+    in_publish=1
+    publish_indent="${BASH_REMATCH[1]}"
+    continue
+  fi
+
+  if [[ "$in_publish" == "1" ]]; then
+    # Leave the publish block on any line whose indent is at or
+    # below the publish: keyword indent (and that has content).
+    if [[ "$line" =~ ^([[:space:]]*)[^[:space:]] ]]; then
+      indent="${BASH_REMATCH[1]}"
+      if [[ "${#indent}" -le "${#publish_indent}" ]]; then
+        in_publish=0
+        continue
+      fi
+    fi
+
+    if [[ "$line" =~ version:[[:space:]]*([0-9A-Za-z.+-]+) ]]; then
+      printf '%s\n' "${BASH_REMATCH[1]}"
+      exit 0
+    fi
+  fi
+done <"$spago_file"
+
+echo "no publish.version field in $spago_file" >&2
+exit 1
