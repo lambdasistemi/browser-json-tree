@@ -1,0 +1,13 @@
+output/
+.spago/
+.psci_modules/
+node_modules/
+result
+result-*
+.direnv/
+
+# Bundled example app
+examples/dist/index.js
+
+# LLM scratch
+.llm/

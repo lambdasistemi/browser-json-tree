@@ -1,0 +1,267 @@
+/* ------------------------------------------------------------------
+ * browser-json-tree — canonical stylesheet.
+ *
+ * Self-contained: every colour, radius and font is exposed as a
+ * `--jt-*` CSS custom property with a sensible fallback. To
+ * theme the tree, override the variables on `.json-tree-wrapper`
+ * (or any ancestor) — e.g. switch to a dark theme by setting
+ * `--jt-bg`, `--jt-fg`, `--jt-line`, …
+ *
+ * Class taxonomy (rendered by `JsonTree.render`):
+ *   .json-tree-wrapper          — optional outer wrapper
+ *   .v-object                   — object container
+ *   .v-pair / .v-pair-leaf      — object entry (key+value inline)
+ *   .v-pair-compound            — object entry with collapsible body
+ *   .v-key  /  .v-key-toggle    — object key (toggle = clickable)
+ *   .v-val                      — object value
+ *   .v-array                    — array container
+ *   .v-item / .v-item-leaf      — array element row
+ *   .v-item-compound            — array element with collapsible body
+ *   .v-sep  /  .v-sep-toggle    — CAD-style index marker
+ *   .v-sep-line / .v-sep-label  — marker hairline / ordinal
+ *   .v-children                 — indented children block
+ *   .v-null / .v-bool / .v-num / .v-str         — primitive leaves
+ *   .v-txid / .v-addr / .v-policy / .v-txin     — default link classes
+ *   .v-copy / .v-copy--block / .v-copy--ok      — copy chip (consumer-rendered,
+ *                                                 driven by JsonTree.Behaviour)
+ * ----------------------------------------------------------------- */
+
+:root,
+.json-tree-wrapper {
+  --jt-bg: #f6f7f9;
+  --jt-fg: #1f2328;
+  --jt-key: #57606a;
+  --jt-line: #d0d7de;
+  --jt-marker: #6e7781;
+  --jt-link: #0969da;
+  --jt-link-hover: #0550ae;
+  --jt-null: #6e7781;
+  --jt-bool-num: #0969da;
+  --jt-str: #1f2328;
+  --jt-copy-fg: #6e7781;
+  --jt-copy-border: #d0d7de;
+  --jt-copy-hover-fg: #1f2328;
+  --jt-copy-hover-bg: #eaeef2;
+  --jt-copy-ok-fg: #ffffff;
+  --jt-copy-ok-bg: #1a7f37;
+  --jt-radius: 8px;
+  --jt-font-mono: "Roboto Mono", ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  --jt-font-size: 12.5px;
+}
+
+/* Optional wrapper. Render `JsonTree.render` output inside an
+   element with this class to get the boxed look. The renderer
+   itself does not emit the wrapper — consumers control it. */
+.json-tree-wrapper {
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--jt-bg);
+  color: var(--jt-fg);
+  border-radius: var(--jt-radius);
+  overflow: auto;
+  white-space: normal;
+  scrollbar-width: thin;
+  scrollbar-color: var(--jt-line) transparent;
+  font-family: var(--jt-font-mono);
+  font-size: var(--jt-font-size);
+  line-height: 1.55;
+}
+
+/* Objects: each entry on its own row. Leaves are "key: value"
+   inline; compound entries get an indented child block under
+   the key. No global column alignment (the tabular grid look
+   gets in the way of scanning a deep tree). */
+.v-object {
+  display: block;
+  margin: 0;
+  padding: 0;
+  font-family: var(--jt-font-mono);
+  font-size: var(--jt-font-size);
+  color: var(--jt-fg);
+}
+.v-pair { display: block; padding: 1px 0; }
+.v-pair > .v-key {
+  color: var(--jt-key);
+  font-weight: 500;
+}
+/* Hanging indent on leaf pairs: when a long value wraps to a
+   second line, the wrapped text starts indented so it can't
+   be misread as a new key in the column above. */
+.v-pair-leaf {
+  padding-left: 16px;
+  text-indent: -16px;
+}
+.v-pair-leaf > .v-val { overflow-wrap: anywhere; }
+.v-pair-compound > .v-children {
+  margin-left: 16px;
+  padding-left: 0;
+  border-left: none;
+}
+
+/* Native <details>/<summary> wiring. Suppress the default
+   disclosure triangle so the key (object) or the index marker
+   (array) is the only visible affordance. Hover slightly
+   darkens the hit-target. */
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+details > summary::-webkit-details-marker { display: none; }
+details > summary::marker { display: none; }
+.v-pair-compound > summary.v-key:hover,
+.v-sep-toggle:hover .v-sep-label {
+  color: var(--jt-fg);
+}
+.v-sep-toggle:hover .v-sep-line,
+.v-sep-toggle:hover .v-sep-line::before,
+.v-sep-toggle:hover .v-sep-line::after {
+  background: var(--jt-marker);
+}
+
+/* Copy chip. The renderer never emits `.v-copy` itself —
+   structure-level copy is a consumer affordance (a "Copy
+   intent JSON" chip above the tree, say). The CSS + the
+   matching JS handler in JsonTree.Behaviour.install ship
+   together so consumers only have to render the element with
+   a `data-copy` attribute and the rest works. The bare
+   `.v-copy` is the inline / compact form; add `.v-copy--block`
+   for the full-row chip variant. `.v-copy--ok` is the brief
+   success flash applied by the install handler after a
+   successful clipboard write. */
+.v-copy {
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  padding: 1px 4px;
+  border: 1px solid var(--jt-copy-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--jt-copy-fg);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.v-copy:hover {
+  color: var(--jt-copy-hover-fg);
+  border-color: var(--jt-marker);
+  background: var(--jt-copy-hover-bg);
+}
+.v-copy--block {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.v-copy--ok {
+  color: var(--jt-copy-ok-fg);
+  background: var(--jt-copy-ok-bg);
+  border-color: var(--jt-copy-ok-bg);
+}
+.v-copy--ok::after { content: " ✓"; }
+
+/* Arrays: each item is a two-column row. The slim left gutter
+   holds a vertical hairline with the 1-based cardinal index
+   centered in the middle of the item's height — chapter
+   divider rotated 90° so it costs zero vertical space. The
+   right column carries the element's actual content. */
+.v-array {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* Suppress any inherited `li::before` bullet. */
+.v-array > li::before { content: none; }
+
+.v-item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  column-gap: 12px;
+  align-items: stretch;
+  padding: 4px 0;
+}
+/* Compound array items wrap their content in a <details> for
+   native collapse. `display: contents` makes the <details>
+   invisible to layout so its <summary> + .v-children flow into
+   the parent .v-item grid (summary in the gutter, children in
+   the right column). */
+.v-item-compound > details { display: contents; }
+
+/* CAD-style dimension bracket: a vertical hairline spanning
+   ~95% of the row, capped at each end with a 90° tick pointing
+   toward the content. The cardinal index sits in the middle
+   with breathing room either side. The line is split into two
+   flex-stretch segments so the label gets a bounded slot
+   rather than masking a continuous bar. */
+.v-sep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  user-select: none;
+}
+.v-sep-line {
+  width: 1px;
+  flex: 1 1 auto;
+  min-height: 6px;
+  background: var(--jt-line);
+  position: relative;
+}
+.v-sep-line:first-child::before,
+.v-sep-line:last-child::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 6px;
+  height: 1px;
+  background: var(--jt-line);
+}
+.v-sep-line:first-child::before { top: 0; }
+.v-sep-line:last-child::after { bottom: 0; }
+.v-sep-label {
+  font-size: 10px;
+  color: var(--jt-marker);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  padding: 3px 0;
+}
+.v-item-compound > .v-children {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+/* Primitive leaves. */
+.v-null {
+  color: var(--jt-null);
+  font-style: italic;
+}
+.v-bool, .v-num { color: var(--jt-bool-num); }
+.v-str {
+  color: var(--jt-str);
+  overflow-wrap: anywhere;
+}
+
+/* Default resolver link classes (cardanoscan txid / address /
+   policy id / txin). All four use a single dotted underline
+   driven by `text-decoration` (NOT `border-bottom`). Some
+   host stylesheets ship a `border-bottom: 1px dotted` on
+   links — to stay robust against that we explicitly null the
+   border so the two mechanisms don't stack into a double
+   underline. Theming a tree to a non-Cardano resolver just
+   means styling whatever `LinkSpec.cls` you return. */
+.v-txid, .v-addr, .v-policy, .v-txin {
+  color: var(--jt-link);
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  border-bottom: none;
+}
+.v-txid:hover, .v-addr:hover,
+.v-policy:hover, .v-txin:hover {
+  color: var(--jt-link-hover);
+  text-decoration-style: solid;
+  border-bottom: none;
+}
