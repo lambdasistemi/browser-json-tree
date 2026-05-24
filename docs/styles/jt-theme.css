@@ -19,25 +19,91 @@
   --jt-copy-hover-bg: var(--md-default-bg-color);
   --jt-copy-ok-fg:    var(--md-primary-bg-color);
   --jt-copy-ok-bg:    var(--md-primary-fg-color);
+  --jt-radius:        4px;          /* match Material code blocks */
 }
 
-/* Picker chip chrome rides the same toggle. The fallback
-   colours in demo.css remain useful for the standalone
-   `examples/dist/index.html` smoke. */
-.jt-demo__pick {
-  border-color: var(--md-default-fg-color--lightest);
-  color: var(--md-typeset-color);
+/* Drop the standalone fallback chip style and let Material's
+   `.md-button` carry the picker. The `.jt-demo__pick--active`
+   modifier already pairs with `.md-button--primary` on the
+   active chip, so this just neutralises the fallback border
+   + rounded-pill so it doesn't fight the Material shape. */
+.md-typeset .md-button.jt-demo__pick {
+  margin: 0;
+  border-radius: 4px;          /* Material default for buttons */
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: none;        /* keep "Cardano transaction" cased */
+  padding: 0.4em 0.9em;
+  letter-spacing: 0.02em;
 }
-.jt-demo__pick:hover {
-  background: var(--md-code-bg-color);
-  border-color: var(--md-default-fg-color--light);
-}
-.jt-demo__pick--active,
-.jt-demo__pick--active:hover {
-  background: var(--md-primary-fg-color);
-  border-color: var(--md-primary-fg-color);
+.md-typeset .md-button.jt-demo__pick--active,
+.md-typeset .md-button.jt-demo__pick--active:hover,
+.md-typeset .md-button.jt-demo__pick--active:focus {
+  background-color: var(--md-primary-fg-color);
   color: var(--md-primary-bg-color);
+  border-color: var(--md-primary-fg-color);
 }
-.jt-demo__subtitle {
+
+/* Reuse the picker container; keep the layout simple. */
+.md-typeset .jt-demo__picker {
+  gap: 8px;
+  margin: 0 0 0.8rem;
+}
+
+.md-typeset .jt-demo__subtitle {
   color: var(--md-default-fg-color--light);
+  font-style: italic;
+  font-size: 0.78rem;
+  margin: 0 0 0.8rem;
+}
+
+.md-typeset .jt-demo__hint {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.7rem;
+  margin: 0.6rem 0 0;
+  line-height: 1.5;
+}
+
+/* Give the tree wrapper a Material-card aesthetic inside the
+   docs page: the same border-radius and surface-elevation feel
+   as a code block, with a touch more breathing room. */
+.md-typeset .json-tree-wrapper {
+  padding: 1rem 1.2rem;
+  margin: 0;
+  box-shadow: var(--md-shadow-z1, none);
+}
+
+/* Align the Copy JSON chip to the right of the wrapper. */
+.md-typeset .jt-demo__bar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 0.4rem;
+}
+
+.md-typeset .v-copy.v-copy--block {
+  font-size: 0.72rem;
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+/* Material's `<details>` styling collides with the tree's
+   nested <details>. Strip the Material chrome inside the
+   tree so the renderer's collapse markers are the only
+   affordance the reader sees. */
+.md-typeset .json-tree-wrapper details {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+.md-typeset .json-tree-wrapper details > summary {
+  background: transparent;
+  padding: 0;
+  font-weight: inherit;
+  color: inherit;
+}
+.md-typeset .json-tree-wrapper details > summary::before,
+.md-typeset .json-tree-wrapper details > summary::after {
+  content: none;
 }
