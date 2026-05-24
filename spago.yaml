@@ -2,7 +2,7 @@ package:
   name: browser-json-tree
   description: Typed Halogen renderer + click behaviour for collapsible JSON trees, with overridable string-leaf link resolution.
   publish:
-    version: 0.1.0
+    version: 0.2.0
     license: Apache-2.0
     location:
       githubOwner: lambdasistemi

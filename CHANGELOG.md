@@ -7,31 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+## [0.2.0](https://github.com/lambdasistemi/browser-json-tree/compare/v0.1.0...v0.2.0) (2026-05-24)
+
 ### Features
 
-- Ship a MkDocs Material documentation site at
-  https://lambdasistemi.github.io/browser-json-tree/ with a live,
-  interactive demo rendering four real-world JSON samples (a
-  Conway-era Cardano transaction exercising every default resolver
-  branch, the live GitHub API response for this repo, a Kubernetes
-  Pod manifest with a sidecar, and the npm registry entry for
-  `react`). Light/dark Material palette toggle drives both site
-  chrome and the tree colours via a `--jt-*` ⇄ `--md-*` tie-in.
-- Add `JsonTree.JS` — vanilla-JS adapter over the renderer +
-  behaviour shim. Exposes `mount`, `mountFromString`, and `install`;
-  bundled as `dist/browser-json-tree.js` (ES module). Lets a plain
-  JS app render a tree under any DOM element without writing
-  Halogen. Shipped as a standalone GitHub Release asset.
-- Refactor the example app into a four-sample picker, mounting on
-  `#json-tree-demo` if present (docs site) and falling back to
-  `<body>` for the standalone smoke. The bundle is reused by the
-  docs site as the live demo.
-- `nix build .#docsSite` builds the documentation site reproducibly
-  in the sandbox; CI Build Gate now includes it, and a localhost
-  smoke check verifies the rendered HTML + the JS/CSS assets are
-  reachable. `nix build .#jsBundle` builds the JS library bundle.
-- `.github/workflows/deploy-docs.yml` publishes to GitHub Pages on
-  push to `main`.
+* add JsonTree.JS — vanilla JS adapter (mount / install) ([d9bfd20](https://github.com/lambdasistemi/browser-json-tree/commit/d9bfd208d09c8512a44d14406c53f8aba7d9ac42))
+* **example:** multi-sample picker with real-world JSON ([173ff64](https://github.com/lambdasistemi/browser-json-tree/commit/173ff64f35fd8dda99a5f66051563d1b65709a3c))
+* **docs:** MkDocs Material site with embedded live demo ([81575b6](https://github.com/lambdasistemi/browser-json-tree/commit/81575b6af3fecd37385ac7bcb866138d26bdf222))
+
+### Bug Fixes
+
+* **demo:** ride Material design tokens; surface dblclick hint ([5b3539d](https://github.com/lambdasistemi/browser-json-tree/commit/5b3539dc0959ca93b1ae1917d3ae708fb026ac56))
 
 ## [0.1.0]
 
